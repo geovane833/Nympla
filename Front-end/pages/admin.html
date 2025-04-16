@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #121212;
+        padding-top: 10px;
+      }
+
+      #scanner {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        margin-bottom: 10px;
+        border-radius: 10px;
+      }
+
+      h1 {
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .nav-tabs .nav-link.active {
+        background-color: #2c2c2c;
+        border: 1px solid #444;
+        border-bottom: none;
+        font-weight: 600;
+        color: #007bff;
+      }
+
+      .nav-tabs .nav-link {
+        color: #6c757d;
+      }
+
+      .card {
+        border: none;
+        border-radius: 25px;
+        background-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+      }
+
+      .card:hover {
+        background-color: #2c2c2c;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+      }
+
+      .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 25px 25px 0 0;
+      }
+
+      .card-body {
+        padding: 15px;
+      }
+
+      .btn-primary {
+        background-color: #10A37F;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        padding: 12px 30px;
+        transition: background-color 0.3s ease;
+        text-transform: uppercase;
+      }
+
+      .btn-primary:hover {
+        background-color: #19C463;
+      }
+
+      .list-group-item {
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 5px;
+        padding: 0;
+      }
+
+      .event-description {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 10px;
+      }
+
+      .event-date {
+        font-size: 12px;
+        color: #777;
+      }
+
+      @media (max-width: 768px) {
+        .card {
+          margin-bottom: 15px;
+        }
+      }
+    </style>
+  </head>
+
+  <body onload="onLoadPage()">
+    <div class="container mt-1">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 id="welcomeMessage">Eventos Disponíveis</h1>
+        <button id="logoutButton" class="btn btn-danger">Sair</button>
+      </div>
+
+      <div class="d-flex justify-content-between mb-3">
+        <button id="registerEventButton" class="btn btn-success">Cadastrar Evento</button>
+        <button id="openScannerBtn" class="btn btn-warning">Escanear QR</button>
+      </div>
+
+      <ul class="nav nav-tabs" id="eventTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="available-tab" data-bs-toggle="tab" data-bs-target="#available" type="button" role="tab" aria-controls="available" aria-selected="true">
+            Eventos Cadastrados
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="registered-pending-tab" data-bs-toggle="tab" data-bs-target="#registered-pending" type="button" role="tab" aria-controls="registered-pending" aria-selected="false">
+            Inscritos Pendentes
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="registered-confirmed-tab" data-bs-toggle="tab" data-bs-target="#registered-confirmed" type="button" role="tab" aria-controls="registered-confirmed" aria-selected="false">
+            Inscritos Confirmados
+          </button>
+        </li>
+      </ul>
+      
+      
+      <div class="tab-content mt-1" id="eventTabsContent">
+        <div class="tab-pane fade show active" id="available" role="tabpanel" aria-labelledby="available-tab">
+          <div id="availableEvents" class="row g-4"></div>
+        </div>
+      
+        <div class="tab-pane fade" id="registered-pending" role="tabpanel" aria-labelledby="registered-pending-tab">
+          <div id="pending-cards-container" class="row mt-3"></div>
+        </div>
+      
+        <div class="tab-pane fade" id="registered-confirmed" role="tabpanel" aria-labelledby="registered-confirmed-tab">
+          <div id="confirmed-cards-container" class="row mt-3"></div>
+        </div>
+      </div>      
+
+    <!-- Modal de cadastro -->
+    <div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createEventModalLabel">Cadastrar Evento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="createEventForm">
+              <div class="mb-3">
+                <label for="eventTitle" class="form-label">Título</label>
+                <input type="text" class="form-control" id="eventTitle" required />
+              </div>
+              <div class="mb-3">
+                <label for="eventDescription" class="form-label">Descrição</label>
+                <textarea class="form-control" id="eventDescription" rows="3" required></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="eventDate" class="form-label">Data</label>
+                <input type="datetime-local" class="form-control" id="eventDate" required />
+              </div>
+              <div class="mb-3">
+                <label for="eventImage" class="form-label">Imagem (URL)</label>
+                <input type="url" class="form-control" id="eventImage" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="saveEventButton">Salvar Evento</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal do scanner -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="qrModalLabel">Escanear QR Code</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <div id="reader" style="width: 100%; max-width: 400px; margin: auto;"></div>
+            <p id="qrResult" class="mt-3"></p>
+            <button id="retryScanButton" class="btn btn-secondary mt-2" style="display: none;">Tentar Novamente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de detalhes do inscrito -->
+    <div class="modal fade" id="eventInfoModal" tabindex="-1" aria-labelledby="eventInfoModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="eventInfoModalLabel">Detalhes do Inscrito</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <div id="eventDetails"></div>
+            <button id="checkInButton" class="btn btn-success mt-3">Confirmar Check-in</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="../js/admin.js"></script>
+
+    <script src="../js/scanner.js"></script>
+    
+  </body>
+</html>

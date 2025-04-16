@@ -1,0 +1,21 @@
+npm init -y
+
+npm i express
+
+npm i pg
+
+npm run dev
+
+npm i dotenv
+
+
+
+banco de dados
+nome do db e Gympla
+
+jwt para autenticar
+npm i jsonwebtoken
+
+autenticação
+bcrypt
+
