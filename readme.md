@@ -58,4 +58,4 @@ Nymbla é uma aplicação web moderna e responsiva, com tema escuro (dark mode),
 1. Clone o repositório:
    ```bash
    git clone https://github.com/geovane833/Nympla
-   cd nymbla
+   cd nympla
